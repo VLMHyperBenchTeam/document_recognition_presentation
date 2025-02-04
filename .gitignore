@@ -131,3 +131,6 @@ model_cache/*
 
 # Ignore example of docs
 example_docs/*
+
+# Ignore tmp
+temp

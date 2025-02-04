@@ -1,0 +1,10 @@
+# Образы для контейнера
+FROM ghcr.io/vlmhyperbenchteam/qwen2.5-vl:ubuntu22.04-cu124-torch2.4.0_v0.1.0
+
+# Создаем рабочую директорию
+WORKDIR /workspace
+
+RUN pip3 install git+https://github.com/VLMHyperBenchTeam/model_qwen2.5-vl.git@0.1.0
+
+# Запускаем терминал
+CMD ["/bin/bash"]

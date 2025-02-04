@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+model-qwen2-5-vl = {git = "https://github.com/VLMHyperBenchTeam/model_qwen2.5-vl.git", rev = "0.1.0"}
+streamlit = "^1.41.1"
 
 
 [build-system]

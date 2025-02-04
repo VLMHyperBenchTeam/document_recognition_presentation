@@ -24,6 +24,7 @@ docker run \
     --gpus all \
     -it \
     -v .:/workspace \
+    -p 8501:8501 \
     qwen2.5-vl:ubuntu22.04-cu124-torch2.4.0_demo_v0.1.0 sh
 ```
 
@@ -31,6 +32,7 @@ docker run \
 
 Для запуска предсказаний выполним в нем команду:
 ```
-cd cd workspace
-python run_predict.py
+streamlit run app.py --server.port=8501 --server.address=0.0.0.0
 ```
+
+Переходим по адресу ГПУ сервера `<ip-адрес-сервера>:8501/`

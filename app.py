@@ -94,6 +94,7 @@ with tab2:
 with tab3:
     st.header("VQA многостраничный")
     uploaded_files = st.file_uploader("Загрузите изображения", accept_multiple_files=True, key="vqa_multi_pages_uploader")
+    user_question = st.text_area("Введите ваш вопрос", value="Напиши, пожалуйста, кто и кому сколько денег занимает?", key="vqa_multi_pages_question")
     if uploaded_files:
         image_paths = [os.path.join("temp", f.name) for f in uploaded_files]
         for file, path in zip(uploaded_files, image_paths):
@@ -103,8 +104,8 @@ with tab3:
             st.image(path, caption=f"Загруженное изображение: {file.name}", use_container_width=True)
     if st.button("Получить информацию", key="vqa_multi_pages_button"):
         if uploaded_files:
-            question = (f"""Количество поданных страниц документов - {len(image_paths)}.
-            Задача: Напиши, пожалуйста, кто и кому сколько денег занимает?""")
+            additional_prompt = f"Количество поданных страниц документов - {len(image_paths)}."
+            question = additional_prompt + user_question
             
             model_answer = model.predict_on_images(images=image_paths, question=question)
             st.write(model_answer)
@@ -124,6 +125,7 @@ with tab4:
             st.image(image_path, caption="Загруженное изображение", use_container_width=True)
             question = user_question
             st.write(question)
+            
             model_answer = model.predict_on_image(image=image_path, question=question)
             st.write(model_answer)
             subprocess.run(["nvidia-smi"])

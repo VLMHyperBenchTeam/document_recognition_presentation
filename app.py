@@ -43,29 +43,52 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(tabs)
 with tab1:
     st.header("Классификация документов")
     uploaded_files = st.file_uploader("Загрузите изображения", accept_multiple_files=True, key="doc_classification_uploader")
-    if uploaded_files:
-        image_paths = [os.path.join("temp", f.name) for f in uploaded_files]
-        for file, path in zip(uploaded_files, image_paths):
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, "wb") as f:
-                f.write(file.getbuffer())
-            st.image(path, caption=f"Загруженное изображение: {file.name}", use_container_width=True)
     if st.button("Классифицировать", key="doc_classification_button"):
         if uploaded_files:
-            question = (f"""Количество поданных страниц документов - {len(image_paths)}.
-            Задача: Определите тип каждого документа на предоставленных изображениях и выведите их в виде последовательности цифр, где каждая цифра соответствует определенному типу документа. Ответ должен содержать только порядок цифр, без дополнительного текста.
-            Типы документов:
-            1 - old_tins: свидетельство о постановке на учет физического лица (документ желтого цвета).
-            2 - new_tins: свидетельство о постановке на учет физического лица
-            3 - interest_free_loan_agreement: договор беспроцентном займе
-            4 - snils: страховое свидетельство обязательного пенсионного страхования (документ зеленого цвета).
-            5 - invoice: счет фактура
-            6 - passport: паспорт России
-            Пример ответа: 2,4,5,1,3
-            Пожалуйста, предоставьте ответ в указанном формате.""")
+            image_paths = [os.path.join("temp", f.name) for f in uploaded_files]
+            for file, path in zip(uploaded_files, image_paths):
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "wb") as f:
+                    f.write(file.getbuffer())
             
+            question = (f"""Количество поданных страниц документов - {len(image_paths)}.
+                Задача: Определите тип каждого документа на предоставленных изображениях и выведите их в виде последовательности цифр, где каждая цифра соответствует определенному типу документа. Ответ должен содержать только порядок цифр, без дополнительного текста.
+                Типы документов:
+                1 - old_tins: свидетельство о постановке на учет физического лица (документ желтого цвета).
+                2 - new_tins: свидетельство о постановке на учет физического лица
+                3 - interest_free_loan_agreement: договор беспроцентном займа
+                4 - snils: страховое свидетельство обязательного пенсионного страхования (документ зеленого цвета).
+                5 - invoice: счет фактура
+                6 - passport: паспорт Российской федерации
+                Пример ответа: 2,4,5,1,3
+                Пожалуйста, предоставьте ответ в указанном формате.""")
+
+            st.write(image_paths)
             model_answer = model.predict_on_images(images=image_paths, question=question)
             st.write(model_answer)
+            
+            # Словарь для текстового описания классов
+            class_descriptions = {
+                "1": "ИНН (старого образца)",
+                "2": "ИНН (нового образца)",
+                "3": "Договор беспроцентном займе",
+                "4": "СНИЛС",
+                "5": "Счет фактура",
+                "6": "Паспорт РФ"
+            }
+            
+            # Преобразование ответа модели в список классов
+            class_list = model_answer.strip().split(',')
+            
+            # Проверка, что количество классов совпадает с количеством изображений
+            if len(class_list) == len(image_paths):
+                for idx, class_id in enumerate(class_list):
+                    image_path = image_paths[idx]
+                    class_description = class_descriptions.get(class_id, "Неизвестный класс")
+                    st.image(image_path, caption=f"Класс документа: {class_id} ({class_description})", use_container_width=True)
+            else:
+                st.error("Количество классов в ответе модели не совпадает с количеством загруженных изображений.")
+            
             subprocess.run(["nvidia-smi"])
 
 # Вкладка "Сортировка страниц"
